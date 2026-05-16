@@ -1,133 +1,56 @@
-name: flutter_antonx_boilerplate
-description: "A new Flutter project."
-# The following line prevents the package from being accidentally published to
-# pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: "none" # Remove this line if you wish to publish to pub.dev
+# 🕌 MasjidAtlas
 
-# The following defines the version and build number for your application.
-# A version number is three numbers separated by dots, like 1.2.43
-# followed by an optional build number separated by a +.
-# Both the version and the builder number may be overridden in flutter
-# build by specifying --build-name and --build-number, respectively.
-# In Android, build-name is used as versionName while build-number used as versionCode.
-# Read more about Android versioning at https://developer.android.com/studio/publish/versioning
-# In iOS, build-name is used as CFBundleShortVersionString while build-number is used as CFBundleVersion.
-# Read more about iOS versioning at
-# https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-# In Windows, build-name is used as the major, minor, and patch parts
-# of the product and file versions while build-number is used as the build suffix.
-version: 1.0.0+1
+A Flutter app that helps users discover nearby mosques based on their current location — without relying on the Google Maps API. Mosque data is scraped, cleaned, and stored in Supabase with PostGIS spatial support to power fast, proximity-based queries.
 
-environment:
-  sdk: ^3.9.2
+![Flutter](https://img.shields.io/badge/Flutter-3.x-blue) ![Supabase](https://img.shields.io/badge/Supabase-PostGIS-green) ![Architecture](https://img.shields.io/badge/Architecture-MVVM-purple)
 
-# Dependencies specify other packages that your package needs in order to work.
-# To automatically upgrade your package dependencies to the latest versions
-# consider running `flutter pub upgrade --major-versions`. Alternatively,
-# dependencies can be manually updated by changing the version numbers below to
-# the latest version available on pub.dev. To see which dependencies have newer
-# versions available, run `flutter pub outdated`.
-dependencies:
-  flutter:
-    sdk: flutter
+---
 
-  # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
+## What it does
 
-  # UI & Icons
-  cupertino_icons: ^1.0.8
-  carousel_slider: ^5.1.1
-  flutter_advanced_drawer: ^1.3.0
-  flutter_rating_bar: ^4.0.0
-  flutter_screenutil: ^5.9.0
-  flutter_staggered_grid_view: ^0.7.0
-  flutter_svg: ^2.2.1
-  shimmer: ^3.0.0
+MasjidAtlas builds a spatial bounding box around the user's GPS coordinates using PostGIS functions, then queries the Supabase database to return all mosques within that area. Each mosque listing includes its available facilities (e.g. parking, wudu area, women's section).
 
-  # State Management & Utilities
-  get: ^4.6.5
-  get_it: ^8.2.0
-  provider: ^6.1.5
-  logger: ^2.6.1
-  intl: ^0.20.2
-  modal_progress_hud_nsn: ^0.5.1
-  shared_preferences: ^2.1.1
-  url_launcher: ^6.1.12
-  flutter_dotenv: ^6.0.0
+`📍 user location → bounding box (PostGIS) → spatial query → nearby masjids + facilities`
 
-  # Firebase
-  firebase_core: ^4.1.1
-  firebase_messaging: ^16.0.2
-  firebase_crashlytics: ^5.0.2
-  firebase_performance: ^0.11.1
+---
 
-  # Device & Connectivity
-  connectivity_plus: ^7.0.0
-  device_info_plus: ^12.1.0
-  device_preview: ^1.1.0
-  permission_handler: ^12.0.1
+## Data pipeline
 
-  # Maps & Location
-  geocoding: ^4.0.0
-  geolocator: ^14.0.2
-  google_maps_flutter: ^2.3.0
+No third-party mosque API exists, so the data was sourced end-to-end:
 
-  # Files & Images
-  dio: ^5.9.0
-  file_picker: ^10.3.3
-  image_picker: ^1.2.0
-  image: ^4.1.6
-  cloud_firestore: ^6.1.0
-  flutter_time_picker_spinner: ^2.0.0
-  supabase_flutter: ^2.10.3
-  google_sign_in: ^7.2.0
-  flutter_facebook_auth: ^7.1.2
-  app_links: ^6.4.1
+- **Scraped** using Selenium (Python)
+- **Cleaned** and normalized
+- **Inserted** into Supabase with PostGIS geometry columns
+- Spatial queries use `ST_MakeEnvelope` / bounding box functions for fast lookups
 
-dev_dependencies:
-  flutter_test:
-    sdk: flutter
+---
 
-  # The "flutter_lints" package below contains a set of recommended lints to
-  # encourage good coding practices. The lint set provided by the package is
-  # activated in the `analysis_options.yaml` file located at the root of your
-  # package. See that file for information about deactivating specific lint
-  # rules and activating additional ones.
-  flutter_lints: ^6.0.0
+## Architecture
 
-# For information on the generic Dart part of this file, see the
-# following page: https://dart.dev/tools/pub/pubspec
+**MVVM** — each screen has a paired `ViewModel` that extends `BaseViewModel`, driving UI state via a `ViewState` enum (idle / busy / error). Services are injected via **GetIt**, and **Provider** handles reactive UI updates.
 
-# The following section is specific to Flutter packages.
-flutter:
-  # The following line ensures that the Material Icons font is
-  # included with your application, so that you can use the icons in
-  # the material Icons class.
-  uses-material-design: true
 
-  # To add assets to your application, add an assets section, like this:
-  assets:
-    - ".env"
-    - assets/images/
 
-  # An image asset can refer to one or more resolution-specific "variants", see
-  # https://flutter.dev/to/resolution-aware-images
+## Tech stack
 
-  # For details regarding adding assets from package dependencies, see
-  # https://flutter.dev/to/asset-from-package
+| Layer | Technology |
+|---|---|
+| Framework | Flutter 3.x |
+| State management | Provider + MVVM |
+| Dependency injection | GetIt |
+| Backend / Database | Supabase + PostGIS |
+| Auth | Google, Facebook, Email |
+| Notifications | Firebase Messaging |
+| HTTP client | Dio |
+| Data pipeline | Selenium (Python) |
 
-  # To add custom fonts to your application, add a fonts section here,
-  # in this "flutter" section. Each entry in this list should have a
-  # "family" key with the font family name, and a "fonts" key with a
-  # list giving the asset and other descriptors for the font. For
-  # example:
-  fonts:
-    - family: JannahLT
-      fonts:
-        - asset: assets/fonts/Jannah_LT_Bold/jannah_lt_bold.ttf
-    - family: Kamali
-      fonts:
-        - asset: assets/fonts/Kamali/Kamali_Personal_Use.ttf
-  #
-  # For details regarding fonts from package dependencies,
-  # see https://flutter.dev/to/font-from-package
+---
+
+## Key highlights
+
+- Custom spatial data pipeline — no mosque directory API used
+- PostGIS bounding box queries for real-time proximity search
+- Full MVVM separation with a shared `BaseViewModel`
+- Multi-provider auth (Google, Facebook, email)
+- Firebase Crashlytics, Performance monitoring, and Push Notifications
+- Responsive UI with `flutter_screenutil` and shimmer loading states
